@@ -19,14 +19,25 @@ public class PlayerFeet : MonoBehaviour
     //  Pre: collision layers must be set because this considers all collisions possible
     //  Post: Increments numGround
     private void OnTriggerEnter2D(Collider2D collider) {
-        // Update ground
-        lock(groundLock) {
-            // If first time on ground after jumping, land
-            if (numGround == 0) {
-                landingEvent.Invoke();
-            }
+        EnemyHurtbox testEnemy = collider.GetComponent<EnemyHurtbox>();
+        int colliderLayer = collider.gameObject.layer;
 
-            numGround++;
+        // Case in which collider is enemy
+        if (testEnemy != null) {
+            hitEnemyEvent.Invoke();
+            testEnemy.hurt(1);
+
+        // Case in which collider is a platform
+        } else if (colliderLayer == LayerMask.NameToLayer("SolidEnviornment")){
+             // Update ground
+            lock(groundLock) {
+                // If first time on ground after jumping, land
+                if (numGround == 0) {
+                    landingEvent.Invoke();
+                }
+
+                numGround++;
+            }
         }
     }
 
@@ -34,14 +45,18 @@ public class PlayerFeet : MonoBehaviour
     //  Pre: collision layers must be set because this considers all collisions possible
     //  Post: Decrements numGround
     private void OnTriggerExit2D(Collider2D collider) {
-        // Update ground
-        lock(groundLock) {
-            int prevGround = numGround;
-            numGround -= (numGround == 0) ? 0 : 1;
+        int colliderLayer = collider.gameObject.layer;
 
-            // If first time on ground after jumping, land
-            if (numGround == 0 && prevGround > 0) {
-                fallingEvent.Invoke();
+        if (colliderLayer == LayerMask.NameToLayer("SolidEnviornment")) {
+            // Update ground
+            lock(groundLock) {
+                int prevGround = numGround;
+                numGround -= (numGround == 0) ? 0 : 1;
+
+                // If first time on ground after jumping, land
+                if (numGround == 0 && prevGround > 0) {
+                    fallingEvent.Invoke();
+                }
             }
         }
     }

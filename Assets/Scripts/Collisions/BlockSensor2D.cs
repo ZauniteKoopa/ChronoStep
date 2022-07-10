@@ -26,8 +26,17 @@ public class BlockSensor2D : IBlockerSensor
     //  Pre: collision layers must be set because this considers all collisions possible
     //  Post: Increments numWallsTouched
     private void OnTriggerEnter2D(Collider2D collider) {
-        lock(numWallsLock) {
-            numWallsTouched++;
+        int colliderLayer = collider.gameObject.layer;
+
+        // Case if you hit an enemy hitbox
+        if (colliderLayer == LayerMask.NameToLayer("EnemyHitbox")) {
+            // Check if collider is a projectile that can be turned into a platform
+
+        // Case if you hit the enviornment
+        } else if (colliderLayer == LayerMask.NameToLayer("SolidEnviornment")){
+            lock(numWallsLock) {
+                numWallsTouched++;
+            }
         }
     }
 
@@ -35,8 +44,17 @@ public class BlockSensor2D : IBlockerSensor
     //  Pre: collision layers must be set because this considers all collisions possible
     //  Post: Decrements numWallsTouched
     private void OnTriggerExit2D(Collider2D collider) {
-        lock(numWallsLock) {
-            numWallsTouched -= (numWallsTouched == 0) ? 0 : 1;
+        int colliderLayer = collider.gameObject.layer;
+
+        // Case if you hit an enemy hitbox
+        if (colliderLayer == LayerMask.NameToLayer("EnemyHitbox")) {
+            // Check if collider is a projectile that can be turned into a platform
+
+        // Case if you hit the enviornment
+        } else if (colliderLayer == LayerMask.NameToLayer("SolidEnviornment")){
+            lock(numWallsLock) {
+                numWallsTouched -= (numWallsTouched == 0) ? 0 : 1;
+            }
         }
     }
 }

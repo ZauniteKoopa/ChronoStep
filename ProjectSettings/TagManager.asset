@@ -14,9 +14,9 @@ TagManager:
   - Player
   - CollisionSensors
   - PlayerFeet
-  - 
-  - 
-  - 
+  - EnemyHurtbox
+  - EnemyHitbox
+  - PauseZone
   - 
   - 
   - 

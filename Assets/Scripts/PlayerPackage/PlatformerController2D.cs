@@ -23,6 +23,8 @@ public class PlatformerController2D : MonoBehaviour
     [SerializeField]
     private float wallJumpForce = 400f;
     [SerializeField]
+    private float enemyJumpForce = 500f;
+    [SerializeField]
     private float gravityScale = 1f;
     [SerializeField]
     private int startingJumps = 1;
@@ -38,11 +40,27 @@ public class PlatformerController2D : MonoBehaviour
     private Coroutine jumpCheckSequence;
     private Coroutine wallJumpSequence;
 
+    [Header("Pause Ability")]
+    [SerializeField]
+    private PauseZone pauseZone;
+
+
+    [Header("Health Variables")]
+    [SerializeField]
+    private int maxHealth = 4;
+    [SerializeField]
+    private float invincibilityFrameDuration = 1.5f;
+    [SerializeField]
+    private float damageKnockback = 200f;
+    private bool invincible = false;
+    private int curHealth;
+
 
     // On awake get rigidbody
     private void Awake() {
         // Initialize variables
         jumpsLeft = startingJumps;
+        curHealth = maxHealth;
 
         // Initialize rigidbody
         rb = GetComponent<Rigidbody2D>();
@@ -56,6 +74,40 @@ public class PlatformerController2D : MonoBehaviour
         if (leftBlockerSensor == null || rightBlockerSensor == null) {
             Debug.LogError("Not connected to sensors, check left and right blocker sensors");
         }
+    }
+
+
+    // Main function for doing damage to player
+    //  Pre: dmg >= 0f
+    //  player is inflicted by this amount of damage
+    public void damage(int dmg, Vector2 dmgPosition) {
+        if (!invincible) {
+            // Decrement health
+            curHealth -= dmg;
+            Debug.Log("health left: " + curHealth);
+
+            // Apply knockback
+            Vector2 playerPosition = transform.position;
+            Vector2 damageKnockbackDir = (playerPosition - dmgPosition).normalized;
+            rb.velocity = Vector3.zero;
+            rb.AddForce(damageKnockback * damageKnockbackDir);
+
+            // Do I-frame sequence if alive, death sequence if dead
+            if (curHealth > 0) {
+                StartCoroutine(invincibilityFrameSequence());
+            } else {
+                invincible = true;
+                Debug.Log("I'm dead!");
+            }
+        }
+    }
+
+
+    // Function to do I-frame sequence
+    private IEnumerator invincibilityFrameSequence() {
+        invincible = true;
+        yield return new WaitForSeconds(invincibilityFrameDuration);
+        invincible = false;
     }
 
 
@@ -189,7 +241,8 @@ public class PlatformerController2D : MonoBehaviour
     // Event handler for when using the pause ability
     public void onAbilityPress(InputAction.CallbackContext value) {
         if (value.started) {
-            Debug.Log("use pause");
+            rb.velocity = Vector2.zero;
+            pauseZone.pause();
         }
     }
 
@@ -206,5 +259,11 @@ public class PlatformerController2D : MonoBehaviour
     public void onFalling() {
         jumpsLeft = startingJumps - 1;
         inAir = true;
+    }
+
+    // Event handler for when player has stepped on an enemy
+    public void onHitEnemy() {
+        rb.velocity = Vector3.zero;
+        rb.AddForce(enemyJumpForce * Vector3.up);
     }
 }
