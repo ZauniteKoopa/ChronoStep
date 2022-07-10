@@ -1,0 +1,210 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class PlatformerController2D : MonoBehaviour
+{
+    // Private Instance Variables
+    [Header("Movement Variables")]
+    [SerializeField]
+    private float speed = 5f;
+    [SerializeField]
+    private IBlockerSensor leftBlockerSensor;
+    [SerializeField]
+    private IBlockerSensor rightBlockerSensor;
+    private Vector2 movementVector;
+    bool isMoving = false;
+
+    [Header("Jumping variables")]
+    private Rigidbody2D rb;
+    [SerializeField]
+    private float jumpForce = 500f;
+    [SerializeField]
+    private float wallJumpForce = 400f;
+    [SerializeField]
+    private float gravityScale = 1f;
+    [SerializeField]
+    private int startingJumps = 1;
+    [SerializeField]
+    private int tapJumpFrameCheck = 12;
+    [SerializeField]
+    private float tapJumpCancelTime = 0.35f;
+    [SerializeField]
+    private float wallJumpHorizontalForceTime = 0.25f;
+    private int jumpsLeft;
+    private bool inAir = true;
+    private bool jumpPressed = false;
+    private Coroutine jumpCheckSequence;
+    private Coroutine wallJumpSequence;
+
+
+    // On awake get rigidbody
+    private void Awake() {
+        // Initialize variables
+        jumpsLeft = startingJumps;
+
+        // Initialize rigidbody
+        rb = GetComponent<Rigidbody2D>();
+        if (rb == null) {
+            Debug.LogError("No rigidbody found on this player, how do I jump?");
+        }
+
+        rb.gravityScale = gravityScale;
+
+        // Check if sensors are set
+        if (leftBlockerSensor == null || rightBlockerSensor == null) {
+            Debug.LogError("Not connected to sensors, check left and right blocker sensors");
+        }
+    }
+
+
+    // Main function for handling movement: runs every frame
+    private void FixedUpdate() {
+        // Only do movement if you're moving
+        if (isMoving) {
+            // Modify movement vector
+            Vector2 actualMove = movementVector;
+            actualMove.x = (leftBlockerSensor.isBlocked() && actualMove.x < -0.1f) ? 0f : actualMove.x;
+            actualMove.x = (rightBlockerSensor.isBlocked() && actualMove.x > 0.1f) ? 0f : actualMove.x;
+
+            // Do translation
+            transform.Translate(actualMove * speed * Time.fixedDeltaTime, Space.World);
+        }
+    }
+
+    // Event handler for when movement has changed
+    public void onMovementChange(InputAction.CallbackContext value) {
+        // Set flag for whether unit is moving
+        isMoving = !value.canceled;
+
+        // Set movement vector
+        float eventValue = value.ReadValue<float>();
+        movementVector = eventValue * Vector2.right;
+        
+    }
+
+
+    // Event handler for jumping
+    public void onJumpPress(InputAction.CallbackContext value) {
+        if (value.started) {
+            // Test normal jump
+            if (jumpsLeft > 0) {
+                // Apply jump
+                rb.AddForce(jumpForce * Vector2.up);
+                jumpsLeft--;
+
+                // Set jumpPressed flag and check for tap jump
+                jumpPressed = true;
+                if (jumpCheckSequence != null) {
+                    StopCoroutine(jumpCheckSequence);
+                }
+
+                jumpCheckSequence = StartCoroutine(checkJumpHeight());
+            } else {
+                executeWallJump();
+            }
+            
+
+        } else if (value.canceled) {
+            jumpPressed = false;
+        }
+    }
+
+
+    // Jump check sequence to check for tap jump
+    private IEnumerator checkJumpHeight() {
+        // Wait for a certain amount of frames
+        WaitForFixedUpdate waitFrame = new WaitForFixedUpdate();
+        for (int i = 0; i < tapJumpFrameCheck; i++) {
+            yield return waitFrame;
+        }
+
+        // If you aren't holding jump anymore, you tap jumpped. Cancel jump
+        bool tapJump = !jumpPressed;
+
+        // Wait for appropriate jump height for canceling
+        yield return new WaitForSeconds(tapJumpCancelTime);
+
+        // Cancel jump
+        if (tapJump) {
+            rb.velocity *= -0.5f;
+        }
+
+        jumpCheckSequence = null;
+    }
+
+
+    // Main private helper function to check for wall jumps
+    //  Pre: none
+    //  Post: execute wall jump if you are moving towards a wall
+    private void executeWallJump() {
+        // You can only execute wall jump if you are in the air
+        if (inAir) {
+
+            // Check left wall
+            if (leftBlockerSensor.isBlocked() && movementVector.x < -0.1f) {
+                Vector2 wallJumpVector = new Vector2(1f, 1f);
+
+                if (wallJumpSequence != null) {
+                    StopCoroutine(wallJumpSequence);
+                }
+                wallJumpSequence = StartCoroutine(wallJumpExecution(wallJumpVector));
+            }
+
+            // Check right wall
+            else if (rightBlockerSensor.isBlocked() && movementVector.x > 0.1f) {
+                Vector2 wallJumpVector = new Vector2(-1f, 1f);
+
+                if (wallJumpSequence != null) {
+                    StopCoroutine(wallJumpSequence);
+                }
+                wallJumpSequence = StartCoroutine(wallJumpExecution(wallJumpVector));
+            }
+        }
+    }
+
+
+    // Main wall jump sequence IEnumerator
+    //  Pre: jumpForceDirection is the direction of the wall jump
+    //  Post: Jump away from the vertical wall
+    private IEnumerator wallJumpExecution(Vector2 jumpForceDirection) {
+        // Apply wall jump
+        jumpForceDirection = jumpForceDirection.normalized;
+        rb.velocity = Vector3.zero;
+        rb.AddForce(wallJumpForce * jumpForceDirection);
+
+        // If you're still checking for tap jump, stop sequence because you're in another jump
+        if (jumpCheckSequence != null) {
+            StopCoroutine(jumpCheckSequence);
+        }
+
+        // Wait for a few seconds before stopping horizontal jump velocity
+        yield return new WaitForSeconds(wallJumpHorizontalForceTime);
+        rb.velocity = new Vector3(0f, rb.velocity.y);
+        wallJumpSequence = null;
+    }
+
+
+    // Event handler for when using the pause ability
+    public void onAbilityPress(InputAction.CallbackContext value) {
+        if (value.started) {
+            Debug.Log("use pause");
+        }
+    }
+
+
+    // Event handler for when player has landed on the ground
+    public void onLanding() {
+        rb.velocity = Vector3.zero;
+        jumpsLeft = startingJumps;
+        inAir = false;
+    }
+
+
+    // Event handler for when player is falling
+    public void onFalling() {
+        jumpsLeft = startingJumps - 1;
+        inAir = true;
+    }
+}
