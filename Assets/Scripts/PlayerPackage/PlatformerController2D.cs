@@ -49,7 +49,6 @@ public class PlatformerController2D : MonoBehaviour
     [SerializeField]
     private PauseZone pauseZone;
 
-
     [Header("Health Variables")]
     [SerializeField]
     private int maxHealth = 4;
@@ -59,6 +58,15 @@ public class PlatformerController2D : MonoBehaviour
     private float damageKnockback = 200f;
     private bool invincible = false;
     private int curHealth;
+
+
+    [Header("Animation")]
+    [SerializeField]
+    private Animator animator;
+    [SerializeField]
+    private SpriteRenderer spriteRender;
+    [SerializeField]
+    private Color hurtColor;
 
 
     // On awake get rigidbody
@@ -111,7 +119,27 @@ public class PlatformerController2D : MonoBehaviour
     // Function to do I-frame sequence
     private IEnumerator invincibilityFrameSequence() {
         invincible = true;
-        yield return new WaitForSeconds(invincibilityFrameDuration);
+        spriteRender.color = hurtColor;
+        animator.SetBool("Hurt", true);
+
+        yield return new WaitForSeconds(0.5f);
+
+        animator.SetBool("Hurt", false);
+
+        // Timer loop
+        float timer = 0f;
+        WaitForFixedUpdate waitFrame = new WaitForFixedUpdate();
+        bool inHurtColor = true;
+
+        while (timer < invincibilityFrameDuration) {
+            yield return waitFrame;
+
+            timer += Time.fixedDeltaTime;
+            spriteRender.color = (inHurtColor) ? Color.white : hurtColor;
+            inHurtColor = !inHurtColor;
+        }
+
+        spriteRender.color = Color.white;
         invincible = false;
     }
 
@@ -135,6 +163,17 @@ public class PlatformerController2D : MonoBehaviour
             float yVelocity = Mathf.Max(-1 * maxSlideDownSpeed, rb.velocity.y);
             rb.velocity = Vector3.up * yVelocity;
         }
+
+        // Constantly check flip x
+        if (isMoving || wallJumpSequence != null) {
+            float animHorSpeed = (wallJumpSequence != null) ? rb.velocity.x : movementVector.x;
+            spriteRender.flipX = (animHorSpeed < 0f);
+        }
+
+        // Constantly set animator
+        animator.SetBool("WallSliding", wallSliding);
+        animator.SetFloat("HorizontalSpeed", Mathf.Abs(movementVector.x));
+        animator.SetFloat("VerticalSpeed", rb.velocity.y);
     }
 
 
@@ -163,7 +202,6 @@ public class PlatformerController2D : MonoBehaviour
 
         // First frame of wall sliding
         if (wallSliding && !prevWallSliding) {
-            Debug.Log("first frame wall sliding");
             rb.velocity = Vector3.zero;
         }
     }
