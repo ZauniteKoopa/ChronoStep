@@ -38,7 +38,7 @@ public abstract class AbstractProjectile : MonoBehaviour
     protected abstract IEnumerator movement(Transform target);
 
 
-    // Main function to check if it's paused
+    // Main function to check if it's paused, returns true if successful
     public bool isPaused() {
         return paused;
     }
@@ -46,7 +46,9 @@ public abstract class AbstractProjectile : MonoBehaviour
 
     // Function to create pause sequence
     public void pause(float pauseDuration) {
-        StartCoroutine(pauseSequence(pauseDuration));
+        if (!paused) {
+            StartCoroutine(pauseSequence(pauseDuration));
+        }
     }
 
 

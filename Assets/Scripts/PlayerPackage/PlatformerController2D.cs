@@ -33,8 +33,6 @@ public class PlatformerController2D : MonoBehaviour
     [SerializeField]
     private int tapJumpFrameCheck = 12;
     [SerializeField]
-    private float tapJumpCancelTime = 0.35f;
-    [SerializeField]
     private float wallJumpHorizontalForceTime = 0.25f;
     private int jumpsLeft;
     private bool inAir = true;
@@ -105,7 +103,7 @@ public class PlatformerController2D : MonoBehaviour
             Vector2 playerPosition = transform.position;
             Vector2 damageKnockbackDir = (playerPosition - dmgPosition).normalized;
             rb.velocity = Vector3.zero;
-            rb.AddForce(damageKnockback * damageKnockbackDir);
+            StartCoroutine(addKnockbackForce(damageKnockback * damageKnockbackDir));
 
             // Do I-frame sequence if alive, death sequence if dead
             if (curHealth > 0) {
@@ -115,6 +113,13 @@ public class PlatformerController2D : MonoBehaviour
                 Debug.Log("I'm dead!");
             }
         }
+    }
+
+    // Private IEnumerator to add knockback force
+    private IEnumerator addKnockbackForce(Vector3 knockback) {
+        rb.AddForce(knockback);
+        yield return new WaitForSeconds(0.2f);
+        rb.velocity = Vector2.zero;
     }
 
 
@@ -305,8 +310,12 @@ public class PlatformerController2D : MonoBehaviour
     // Event handler for when using the pause ability
     public void onAbilityPress(InputAction.CallbackContext value) {
         if (value.started) {
-            rb.velocity = Vector2.zero;
-            pauseZone.pause();
+            if (pauseZone.canPause()) {
+                rb.velocity = Vector2.zero;
+                pauseZone.pause();
+            } else {
+                Debug.Log("Pause is on cooldown");
+            }
         }
     }
 

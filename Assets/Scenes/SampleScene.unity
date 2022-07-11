@@ -534,7 +534,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9ad5a4ef03e4590e8fd7829c7566611, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseDuration: 5
+  pauseDuration: 4
+  pauseCooldown: 8
 --- !u!1 &946024897
 GameObject:
   m_ObjectHideFlags: 0
@@ -1103,6 +1104,14 @@ PrefabInstance:
       propertyPath: spriteRender
       value: 
       objectReference: {fileID: 507830533}
+    - target: {fileID: 8105501063201395202, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
+      propertyPath: initialJumpForce
+      value: 350
+      objectReference: {fileID: 0}
+    - target: {fileID: 8105501063201395202, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
+      propertyPath: extendedJumpForce
+      value: 150
+      objectReference: {fileID: 0}
     - target: {fileID: 8105501063201395202, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
       propertyPath: maxSlideDownSpeed
       value: 1.5

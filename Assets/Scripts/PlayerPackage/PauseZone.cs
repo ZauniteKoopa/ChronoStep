@@ -10,6 +10,9 @@ public class PauseZone : MonoBehaviour
     private readonly object projLock = new object();
     [SerializeField]
     private float pauseDuration = 5f;
+    [SerializeField]
+    private float pauseCooldown = 12f;
+    private bool pauseReady = true;
 
 
     // On awake, create Hashset
@@ -19,28 +22,57 @@ public class PauseZone : MonoBehaviour
         render.enabled = false;
     }
 
+
+    // Main function to check if you can pause
+    public bool canPause() {
+        return pauseReady;
+    }
+
     
     // Public function to pause elements nearby
-    public void pause() {
-        StartCoroutine(pauseSequence());
+    //  Returns true if successful
+    public bool pause() {
+        if (pauseReady) {
+            StartCoroutine(pauseSequence());
+            StartCoroutine(pauseCooldownSequence());
+            pauseReady = false;
+            return true;
+        }
+
+        return false;
+    }
+
+
+    // Pause cooldown sequence
+    private IEnumerator pauseCooldownSequence() {
+        pauseReady = false;
+        yield return new WaitForSeconds(pauseCooldown);
+        pauseReady = true;
     }
 
 
     // Pause sequence
     private IEnumerator pauseSequence() {
-        // Pause all enemy projectiles
-        lock (projLock) {
-            foreach (AbstractProjectile proj in inRangeProjectiles) {
-                if (proj != null) {
-                    proj.pause(pauseDuration);
-                }
-            }
-        }
 
         render.enabled = true;
 
-        yield return new WaitForSeconds(0.15f);
+        float timer = 0f;
+        WaitForFixedUpdate waitFrame = new WaitForFixedUpdate();
+        while (timer < 0.15f) {
+            yield return waitFrame;
+            // Pause all enemy projectiles
+            lock (projLock) {
+                foreach (AbstractProjectile proj in inRangeProjectiles) {
+                    if (proj != null) {
+                        proj.pause(pauseDuration);
+                    }
+                }
+            }
 
+            timer += Time.fixedDeltaTime;
+        }
+        //yield return new WaitForSeconds(0.15f);
+        
         render.enabled = false;
     }
 
