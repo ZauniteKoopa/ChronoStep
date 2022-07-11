@@ -19,7 +19,9 @@ public class PlatformerController2D : MonoBehaviour
     [Header("Jumping variables")]
     private Rigidbody2D rb;
     [SerializeField]
-    private float jumpForce = 500f;
+    private float initialJumpForce = 300f;
+    [SerializeField]
+    private float extendedJumpForce = 200f;
     [SerializeField]
     private float wallJumpForce = 400f;
     [SerializeField]
@@ -213,7 +215,7 @@ public class PlatformerController2D : MonoBehaviour
             // Test normal jump
             if (jumpsLeft > 0) {
                 // Apply jump
-                rb.AddForce(jumpForce * Vector2.up);
+                rb.AddForce(initialJumpForce * Vector2.up);
                 jumpsLeft--;
 
                 // Set jumpPressed flag and check for tap jump
@@ -242,18 +244,10 @@ public class PlatformerController2D : MonoBehaviour
             yield return waitFrame;
         }
 
-        // If you aren't holding jump anymore, you tap jumpped. Cancel jump
-        bool tapJump = !jumpPressed;
-
-        // Wait for appropriate jump height for canceling
-        yield return new WaitForSeconds(tapJumpCancelTime);
-
-        // Cancel jump
-        if (tapJump) {
-            rb.velocity *= -0.5f;
+        // If you are holding jump, extend jump
+        if (jumpPressed) {
+            rb.AddForce(extendedJumpForce * Vector2.up);
         }
-
-        jumpCheckSequence = null;
     }
 
 
