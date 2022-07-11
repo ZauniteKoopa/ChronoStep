@@ -40,6 +40,11 @@ public class PlatformerController2D : MonoBehaviour
     private Coroutine jumpCheckSequence;
     private Coroutine wallJumpSequence;
 
+    [Header("Wall slide variables")]
+    [SerializeField]
+    private float maxSlideDownSpeed = 5f;
+    private bool wallSliding = false;
+
     [Header("Pause Ability")]
     [SerializeField]
     private PauseZone pauseZone;
@@ -123,7 +128,15 @@ public class PlatformerController2D : MonoBehaviour
             // Do translation
             transform.Translate(actualMove * speed * Time.fixedDeltaTime, Space.World);
         }
+
+        // If you're wall sliding, restrict vertical velocity
+        checkWallSlide(movementVector.x);
+        if (wallSliding) {
+            float yVelocity = Mathf.Max(-1 * maxSlideDownSpeed, rb.velocity.y);
+            rb.velocity = Vector3.up * yVelocity;
+        }
     }
+
 
     // Event handler for when movement has changed
     public void onMovementChange(InputAction.CallbackContext value) {
@@ -133,7 +146,26 @@ public class PlatformerController2D : MonoBehaviour
         // Set movement vector
         float eventValue = value.ReadValue<float>();
         movementVector = eventValue * Vector2.right;
-        
+    }
+
+
+    // Private helper function to check wall slide
+    //  Pre: movementDir is a float indicating movement. -1 to left, 1 to right
+    //  Post: sets wallSliding flag and make any noticable changes to rigidbody
+    public void checkWallSlide(float movementDir) {
+         // Check if wall slide conditions
+        bool prevWallSliding = wallSliding;
+        bool leftWallSlide = movementDir < -0.0001 && leftBlockerSensor.isBlocked();
+        bool rightWallSlide = movementDir > 0.0001 && rightBlockerSensor.isBlocked();
+
+        // Wall sliding occurs when you're leaning to a wall, you're in the air, and you're not in a wall jump sequence
+        wallSliding = (leftWallSlide || rightWallSlide) && inAir && wallJumpSequence == null;
+
+        // First frame of wall sliding
+        if (wallSliding && !prevWallSliding) {
+            Debug.Log("first frame wall sliding");
+            rb.velocity = Vector3.zero;
+        }
     }
 
 
@@ -252,6 +284,7 @@ public class PlatformerController2D : MonoBehaviour
         rb.velocity = Vector3.zero;
         jumpsLeft = startingJumps;
         inAir = false;
+        wallSliding = false;
     }
 
 

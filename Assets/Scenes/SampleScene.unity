@@ -969,6 +969,10 @@ PrefabInstance:
       propertyPath: pauseZone
       value: 
       objectReference: {fileID: 737467132}
+    - target: {fileID: 8105501063201395202, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
+      propertyPath: maxSlideDownSpeed
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8105501063201395260, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
       propertyPath: m_RootOrder
       value: 4

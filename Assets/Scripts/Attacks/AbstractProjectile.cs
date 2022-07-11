@@ -69,7 +69,7 @@ public abstract class AbstractProjectile : MonoBehaviour
 
 
     // On trigger 
-    private void OnTriggerEnter2D(Collider2D collider) {
+    private void OnTriggerStay2D(Collider2D collider) {
 
         // Only collide if this is the player or the enviornment
         int colliderLayer = collider.gameObject.layer;
