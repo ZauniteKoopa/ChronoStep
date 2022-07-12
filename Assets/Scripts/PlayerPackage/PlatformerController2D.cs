@@ -68,12 +68,17 @@ public class PlatformerController2D : MonoBehaviour
     [SerializeField]
     private Color hurtColor;
 
+    [Header("UI")]
+    [SerializeField]
+    private PlayerUI playerUI;
+
 
     // On awake get rigidbody
     private void Awake() {
         // Initialize variables
         jumpsLeft = startingJumps;
         curHealth = maxHealth;
+        playerUI.displayHealth(curHealth);
 
         // Initialize rigidbody
         rb = GetComponent<Rigidbody2D>();
@@ -92,12 +97,12 @@ public class PlatformerController2D : MonoBehaviour
 
     // Main function for doing damage to player
     //  Pre: dmg >= 0f
-    //  player is inflicted by this amount of damage
-    public void damage(int dmg, Vector2 dmgPosition) {
+    //  player is inflicted by this amount of damage, returns if successful
+    public bool damage(int dmg, Vector2 dmgPosition) {
         if (!invincible) {
             // Decrement health
             curHealth -= dmg;
-            Debug.Log("health left: " + curHealth);
+            playerUI.displayHealth(curHealth);
 
             // Apply knockback
             Vector2 playerPosition = transform.position;
@@ -110,9 +115,13 @@ public class PlatformerController2D : MonoBehaviour
                 StartCoroutine(invincibilityFrameSequence());
             } else {
                 invincible = true;
-                Debug.Log("I'm dead!");
+                animator.SetBool("Hurt", true);
             }
+
+            return true;
         }
+
+        return false;
     }
 
     // Private IEnumerator to add knockback force
@@ -154,7 +163,7 @@ public class PlatformerController2D : MonoBehaviour
     // Main function for handling movement: runs every frame
     private void FixedUpdate() {
         // Only do movement if you're moving
-        if (isMoving) {
+        if (isMoving && curHealth > 0) {
             // Modify movement vector
             Vector2 actualMove = movementVector;
             actualMove.x = (leftBlockerSensor.isBlocked() && actualMove.x < -0.1f) ? 0f : actualMove.x;

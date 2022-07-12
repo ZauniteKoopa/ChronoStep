@@ -7,17 +7,113 @@ public class EnemyStatus : MonoBehaviour
 {
     [SerializeField]
     private int health = 3;
+    [SerializeField]
+    private SpriteRenderer sprite;
+    private bool paused = false;
     public UnityEvent deathEvent;
+    private Color originalColor;
+    [SerializeField]
+    private Color pauseColor;
+
+    // Collection of body hitboxes that trigger unpause event
+    [SerializeField]
+    private EnemyBodyHitbox[] enemyBodyHitboxes;
+
+
+    // On awake set everything up
+    private void Awake() {
+        // Error check
+        if (sprite == null) {
+            Debug.LogError("Not connected to sprite");
+        }
+
+        // listen to body hit event
+        foreach (EnemyBodyHitbox hitbox in enemyBodyHitboxes) {
+            hitbox.hitPlayerEvent.AddListener(onEnemyBodyHit);
+        }
+
+        // Get color
+        originalColor = sprite.color;
+    }
 
 
     // Main function to handle damage
     public void damage(int dmg) {
-        health-= dmg;
+        // Do damage
+        health -= dmg;
+        
+        // Unpause if you are paused
+        if (paused) {
+            paused = false;
+        }
 
         // check for death condition
         if (health <= 0) {
             deathEvent.Invoke();
             gameObject.SetActive(false);
         }
+    }
+
+
+    // Main function to pause unit
+    public void pause(float duration) {
+        if (!paused) {
+            StartCoroutine(pauseSequence(duration));
+        }
+    }
+
+
+    // Main event handler function for when enemy's body hit the player
+    private void onEnemyBodyHit() {
+        if (paused) {
+            paused = false;
+        }
+    }
+
+
+    // Main function to go pause sequence 
+    private IEnumerator pauseSequence(float duration) {
+        Debug.Assert(duration > 1.5f);
+
+        // Set up timer
+        paused = true;
+        float timer = 0f;
+        sprite.color = pauseColor;
+        WaitForFixedUpdate waitFrame = new WaitForFixedUpdate();
+
+        // Be blue for a while
+        while (timer < (duration - 1.5f) && paused) {
+            yield return waitFrame;
+            timer += Time.fixedDeltaTime;
+        }
+
+        // Start blinking
+        float blinkTimer = 0f;
+        bool isBlue = true;
+
+        while (timer < duration && paused) {
+            yield return waitFrame;
+
+            // Update timers
+            timer += Time.fixedDeltaTime;
+            blinkTimer += Time.fixedDeltaTime;
+
+            // Check for blink
+            if (blinkTimer > 0.1f) {
+                sprite.color = (isBlue) ? originalColor : pauseColor;
+                isBlue = !isBlue;
+                blinkTimer = 0f;
+            }
+        }
+
+        // Reset
+        sprite.color = originalColor;
+        paused = false;
+    }
+
+
+    // Main function to check if this unit is paused
+    public bool isPaused() {
+        return paused;
     }
 }

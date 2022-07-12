@@ -6,18 +6,26 @@ public class PauseZone : MonoBehaviour
 {
     // Create a collection of AbstractProjectiles
     private HashSet<AbstractProjectile> inRangeProjectiles;
-    private SpriteRenderer render;
     private readonly object projLock = new object();
+
+    private HashSet<EnemyStatus> inRangeEnemies;
+    private readonly object enemyLock = new object();
+
+    private SpriteRenderer render;
     [SerializeField]
     private float pauseDuration = 5f;
     [SerializeField]
     private float pauseCooldown = 12f;
     private bool pauseReady = true;
 
+    [SerializeField]
+    private PlayerUI playerUI;
+
 
     // On awake, create Hashset
     private void Awake() {
         inRangeProjectiles = new HashSet<AbstractProjectile>();
+        inRangeEnemies = new HashSet<EnemyStatus>();
         render = GetComponent<SpriteRenderer>();
         render.enabled = false;
     }
@@ -46,7 +54,21 @@ public class PauseZone : MonoBehaviour
     // Pause cooldown sequence
     private IEnumerator pauseCooldownSequence() {
         pauseReady = false;
-        yield return new WaitForSeconds(pauseCooldown);
+
+        // Set up timer
+        float timer = 0f;
+        WaitForFixedUpdate waitFrame = new WaitForFixedUpdate();
+        playerUI.displayPauseCooldownState(0f, pauseCooldown);
+
+        // Timer loop
+        while (timer < pauseCooldown) {
+            yield return waitFrame;
+
+            timer += Time.fixedDeltaTime;
+            playerUI.displayPauseCooldownState(timer, pauseCooldown);
+        }
+
+        playerUI.displayPauseCooldownState(timer, pauseCooldown);
         pauseReady = true;
     }
 
@@ -69,9 +91,17 @@ public class PauseZone : MonoBehaviour
                 }
             }
 
+            // Pause all enemies
+            lock (enemyLock) {
+                foreach (EnemyStatus enemy in inRangeEnemies) {
+                    if (enemy != null) {
+                        enemy.pause(pauseDuration);
+                    }
+                }
+            }
+
             timer += Time.fixedDeltaTime;
         }
-        //yield return new WaitForSeconds(0.15f);
         
         render.enabled = false;
     }
@@ -80,7 +110,9 @@ public class PauseZone : MonoBehaviour
     // Event handler for when projectiles go in range
     private void OnTriggerEnter2D(Collider2D collider) {
         AbstractProjectile proj = collider.GetComponent<AbstractProjectile>();
+        EnemyStatus enemy = collider.GetComponent<EnemyStatus>();
 
+        // Case for projectiles
         if (proj != null) {
             lock (projLock) {
                 inRangeProjectiles.Add(proj);
@@ -88,19 +120,35 @@ public class PauseZone : MonoBehaviour
 
             proj.destroyEvent.AddListener(onProjectileDestroyed);
         }
+
+        // Case for enemies
+        if (enemy != null) {
+            lock (enemyLock) {
+                inRangeEnemies.Add(enemy);
+            }
+        }
     }
 
 
     // Event handler for when projectiles go out of range
     private void OnTriggerExit2D(Collider2D collider) {
         AbstractProjectile proj = collider.GetComponent<AbstractProjectile>();
+        EnemyStatus enemy = collider.GetComponent<EnemyStatus>();
 
+        // Case for projectile
         if (proj != null) {
             lock (projLock) {
                 inRangeProjectiles.Remove(proj);
             }
 
             proj.destroyEvent.RemoveListener(onProjectileDestroyed);
+        }
+
+        // Case for enemies
+        if (enemy != null) {
+            lock (enemyLock) {
+                inRangeEnemies.Remove(enemy);
+            }
         }
     }
 

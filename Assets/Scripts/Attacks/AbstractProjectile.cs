@@ -54,14 +54,30 @@ public abstract class AbstractProjectile : MonoBehaviour
 
     // Private IEnumerator for pausing enemies
     private IEnumerator pauseSequence(float duration) {
+        Debug.Assert(duration > 1.5f);
+
+        // Pause projectile
         gameObject.layer = LayerMask.NameToLayer("SolidEnviornment");
         paused = true;
         myCollider.isTrigger = false;
         myRender.color = Color.blue;
         pausedEvent.Invoke();
 
-        yield return new WaitForSeconds(duration);
+        // Stay blue for a long time
+        yield return new WaitForSeconds(duration - 1.5f);
 
+        // Constantly blink every 0.1 seconds
+        float timer = 0f;
+        bool isBlue = true;
+        while (timer < 1.5f) {
+            yield return new WaitForSeconds(0.1f);
+            timer += 0.1f;
+
+            myRender.color = (isBlue) ? trueColor : Color.blue;
+            isBlue = !isBlue;
+        }
+
+        // Unpause projectile
         gameObject.layer = LayerMask.NameToLayer("EnemyHitbox");
         paused = false;
         myCollider.isTrigger = true;
