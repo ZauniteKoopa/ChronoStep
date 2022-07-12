@@ -9,11 +9,16 @@ public class EnemyStatus : MonoBehaviour
     private int health = 3;
     [SerializeField]
     private SpriteRenderer sprite;
-    private bool paused = false;
     public UnityEvent deathEvent;
     private Color originalColor;
+
+    private bool paused = false;
+    private bool pauseInvulnerable = false;
+    private float pauseInvulnerabilityDuration = 5f;
     [SerializeField]
     private Color pauseColor;
+    [SerializeField]
+    private EnemyUI enemyUI;
 
     // Collection of body hitboxes that trigger unpause event
     [SerializeField]
@@ -57,7 +62,7 @@ public class EnemyStatus : MonoBehaviour
 
     // Main function to pause unit
     public void pause(float duration) {
-        if (!paused) {
+        if (!paused && !pauseInvulnerable) {
             StartCoroutine(pauseSequence(duration));
         }
     }
@@ -68,6 +73,32 @@ public class EnemyStatus : MonoBehaviour
         if (paused) {
             paused = false;
         }
+    }
+
+
+    // Main function to do pause invulnerability sequence, for a short amount of time, enemies will be invulnerable to pauses
+    //  Pre: enemy just got out of being unpaused
+    private IEnumerator pauseInvulnerabilitySequence() {
+        // Set pause invulnerability to true
+        pauseInvulnerable = true;
+        enemyUI.displayPauseInvulnerability(true);
+        enemyUI.setPauseInvulnerabilityStatus(0f, pauseInvulnerabilityDuration);
+
+        // Establish timer
+        float timer = 0f;
+        WaitForFixedUpdate waitFrame = new WaitForFixedUpdate();
+
+        // Timer loop
+        while (timer < pauseInvulnerabilityDuration) {
+            yield return waitFrame;
+
+            timer += Time.fixedDeltaTime;
+            enemyUI.setPauseInvulnerabilityStatus(timer, pauseInvulnerabilityDuration);
+        }
+
+        enemyUI.displayPauseInvulnerability(false);
+        pauseInvulnerable = false;
+
     }
 
 
@@ -107,6 +138,7 @@ public class EnemyStatus : MonoBehaviour
         }
 
         // Reset
+        StartCoroutine(pauseInvulnerabilitySequence());
         sprite.color = originalColor;
         paused = false;
     }
