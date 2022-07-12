@@ -72,6 +72,8 @@ public class PlatformerController2D : MonoBehaviour
     [Header("UI")]
     [SerializeField]
     private PlayerUI playerUI;
+    [SerializeField]
+    private PauseMenu pauseMenu;
 
 
     // On awake get rigidbody
@@ -85,6 +87,10 @@ public class PlatformerController2D : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         if (rb == null) {
             Debug.LogError("No rigidbody found on this player, how do I jump?");
+        }
+
+        if (pauseMenu == null) {
+            Debug.LogError("No pause menu connected to this player");
         }
 
         rb.gravityScale = gravityScale;
@@ -237,23 +243,25 @@ public class PlatformerController2D : MonoBehaviour
     // Event handler for jumping
     public void onJumpPress(InputAction.CallbackContext value) {
         if (value.started) {
-            // Test normal jump
-            if (jumpsLeft > 0) {
-                // Apply jump
-                rb.AddForce(initialJumpForce * Vector2.up);
-                jumpsLeft--;
+            // Only do actual jump if not in pause menu
+            if (!pauseMenu.menuActive()) {
+                if (jumpsLeft > 0) {
+                    // Apply jump
+                    rb.AddForce(initialJumpForce * Vector2.up);
+                    jumpsLeft--;
 
-                // Set jumpPressed flag and check for tap jump
-                jumpPressed = true;
-                if (jumpCheckSequence != null) {
-                    StopCoroutine(jumpCheckSequence);
+                    // Set jumpPressed flag and check for tap jump
+                    if (jumpCheckSequence != null) {
+                        StopCoroutine(jumpCheckSequence);
+                    }
+
+                    jumpCheckSequence = StartCoroutine(checkJumpHeight());
+                } else {
+                    executeWallJump();
                 }
-
-                jumpCheckSequence = StartCoroutine(checkJumpHeight());
-            } else {
-                executeWallJump();
             }
-            
+
+            jumpPressed = true;
 
         } else if (value.canceled) {
             jumpPressed = false;
@@ -329,12 +337,24 @@ public class PlatformerController2D : MonoBehaviour
 
     // Event handler for when using the pause ability
     public void onAbilityPress(InputAction.CallbackContext value) {
-        if (value.started) {
+        if (value.started && !pauseMenu.menuActive()) {
             if (pauseZone.canPause()) {
                 rb.velocity = Vector2.zero;
                 pauseZone.pause();
             } else {
                 Debug.Log("Pause is on cooldown");
+            }
+        }
+    }
+
+
+    // Event handler for when pausing the game
+    public void onPauseMenuPress(InputAction.CallbackContext value) {
+        if (value.started) {
+            if (pauseMenu.menuActive()) {
+                pauseMenu.unpause();
+            } else {
+                pauseMenu.pause();
             }
         }
     }
