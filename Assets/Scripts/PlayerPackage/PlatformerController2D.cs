@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlatformerController2D : MonoBehaviour
 {
@@ -114,8 +115,7 @@ public class PlatformerController2D : MonoBehaviour
             if (curHealth > 0) {
                 StartCoroutine(invincibilityFrameSequence());
             } else {
-                invincible = true;
-                animator.SetBool("Hurt", true);
+                StartCoroutine(death());
             }
 
             return true;
@@ -129,6 +129,17 @@ public class PlatformerController2D : MonoBehaviour
         rb.AddForce(knockback);
         yield return new WaitForSeconds(0.2f);
         rb.velocity = Vector2.zero;
+    }
+
+
+    // Private Sequence to execute death
+    private IEnumerator death() {
+        invincible = true;
+        animator.SetBool("Hurt", true);
+
+        yield return new WaitForSeconds(2f);
+
+        SceneManager.LoadScene("GameOver");
     }
 
 
