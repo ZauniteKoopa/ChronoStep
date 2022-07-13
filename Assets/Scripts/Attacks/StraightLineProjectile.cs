@@ -25,6 +25,10 @@ public class StraightLineProjectile : AbstractProjectile
             // Wait until youre not paused
             yield return new WaitUntil(() => !isPaused());
 
+            // Move projectile
+            transform.Translate(bulletSpeed * Time.fixedDeltaTime * projDir, Space.World);
+            curDistance += (bulletSpeed * Time.fixedDeltaTime);
+
             // Wait for fixed frame
             yield return waitFrame;
 

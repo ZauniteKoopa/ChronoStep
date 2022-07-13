@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 8912576290145410321}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.9639734, y: -0.0844706, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -103,7 +103,7 @@ MonoBehaviour:
   unpausedEvent:
     m_PersistentCalls:
       m_Calls: []
-  bulletSpeed: 5
+  bulletSpeed: 3.5
 --- !u!61 &8147372478437455593
 BoxCollider2D:
   m_ObjectHideFlags: 0
