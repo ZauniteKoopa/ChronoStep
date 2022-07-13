@@ -23,6 +23,8 @@ public class EnemyStatus : MonoBehaviour
     // Collection of body hitboxes that trigger unpause event
     [SerializeField]
     private EnemyBodyHitbox[] enemyBodyHitboxes;
+    private Rigidbody2D rb;
+    private RigidbodyConstraints2D originalPhysicsConstraints;
 
 
     // On awake set everything up
@@ -36,6 +38,13 @@ public class EnemyStatus : MonoBehaviour
         foreach (EnemyBodyHitbox hitbox in enemyBodyHitboxes) {
             hitbox.hitPlayerEvent.AddListener(onEnemyBodyHit);
         }
+
+        // get rigidbody and get original constraints
+        rb = GetComponent<Rigidbody2D>();
+        if (rb == null) {
+            Debug.LogError("No rigidbody connected to this enemy!", transform);
+        }
+        originalPhysicsConstraints = rb.constraints;
 
         // Get color
         originalColor = sprite.color;
@@ -108,6 +117,7 @@ public class EnemyStatus : MonoBehaviour
 
         // Set up timer
         paused = true;
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
         float timer = 0f;
         sprite.color = pauseColor;
         WaitForFixedUpdate waitFrame = new WaitForFixedUpdate();
@@ -139,6 +149,7 @@ public class EnemyStatus : MonoBehaviour
 
         // Reset
         StartCoroutine(pauseInvulnerabilitySequence());
+        rb.constraints = originalPhysicsConstraints;
         sprite.color = originalColor;
         paused = false;
     }

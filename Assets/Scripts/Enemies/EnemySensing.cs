@@ -8,7 +8,7 @@ public class EnemySenseDelegate : UnityEvent<Transform> {}
 
 public class EnemySensing : MonoBehaviour
 {
-    public EnemySenseDelegate onSensedPlayer;
+    public EnemySenseDelegate sensedPlayerEvent;
     private bool sensedPlayer = false;
 
 
@@ -18,7 +18,7 @@ public class EnemySensing : MonoBehaviour
 
         if (testPlayer != null && !sensedPlayer) {
             sensedPlayer = true;
-            onSensedPlayer.Invoke(testPlayer.transform);
+            sensedPlayerEvent.Invoke(testPlayer.transform);
         }
     }
 }
