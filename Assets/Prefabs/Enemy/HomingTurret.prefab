@@ -476,7 +476,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sensing: {fileID: 1236152283331543208}
-  fireInterval: 2.5
+  fireInterval: 4
   turretProjectile: {fileID: 1771137578376663728, guid: d1ff8e499c1edb40b9c07f244b75b652, type: 3}
 --- !u!1 &3149681793113313107
 GameObject:

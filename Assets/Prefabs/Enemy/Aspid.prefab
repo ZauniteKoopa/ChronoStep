@@ -430,10 +430,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sensing: {fileID: 3547679081751093904}
-  fireInterval: 2.5
+  fireInterval: 4
   turretProjectile: {fileID: 1771137578376663728, guid: d1ff8e499c1edb40b9c07f244b75b652, type: 3}
-  springMovementConstant: 5
-  maxSpeed: 4
+  springMovementConstant: 0.75
+  maxSpeed: 3
   optimalDistance: 4.5
 --- !u!1 &3547679081751093905
 GameObject:
