@@ -57,7 +57,7 @@ public class LeapingFrog : AbstractEnemyBehavior
             }
 
             // Check if you've landed
-            if (rb.velocity.y <= 0f && footSensor.isBlocked()) {
+            if (rb.velocity.y <= -0.5f && footSensor.isBlocked()) {
                 jumping = false;
             }
 
@@ -78,6 +78,7 @@ public class LeapingFrog : AbstractEnemyBehavior
         // Set animator 
         if (!isPaused()) {
             spriteAnimator.SetFloat("VerticalSpeed", rb.velocity.y);
+            spriteAnimator.SetBool("Jumping", jumping);
         }
     }
 

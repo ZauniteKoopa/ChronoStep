@@ -422,8 +422,6 @@ public class PlatformerController2D : MonoBehaviour
                 if (inAir) {
                     rb.AddForce(Vector3.up * pauseAirJumpForce);
                 }
-            } else {
-                Debug.Log("Pause is on cooldown");
             }
         }
     }
