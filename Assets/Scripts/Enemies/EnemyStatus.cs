@@ -9,6 +9,7 @@ public class EnemyStatus : MonoBehaviour
     private int health = 3;
     [SerializeField]
     private SpriteRenderer sprite;
+    private Animator spriteAnimator;
     public UnityEvent deathEvent;
     private Color originalColor;
 
@@ -33,6 +34,7 @@ public class EnemyStatus : MonoBehaviour
         if (sprite == null) {
             Debug.LogError("Not connected to sprite");
         }
+        spriteAnimator = sprite.GetComponent<Animator>();
 
         // listen to body hit event
         foreach (EnemyBodyHitbox hitbox in enemyBodyHitboxes) {
@@ -120,6 +122,10 @@ public class EnemyStatus : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
         float timer = 0f;
         sprite.color = pauseColor;
+        if (spriteAnimator != null) {
+            spriteAnimator.speed = 0f;
+        }
+
         WaitForFixedUpdate waitFrame = new WaitForFixedUpdate();
 
         // Be blue for a while
@@ -151,6 +157,9 @@ public class EnemyStatus : MonoBehaviour
         StartCoroutine(pauseInvulnerabilitySequence());
         rb.constraints = originalPhysicsConstraints;
         sprite.color = originalColor;
+        if (spriteAnimator != null) {
+            spriteAnimator.speed = 1f;
+        }
         paused = false;
     }
 

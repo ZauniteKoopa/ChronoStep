@@ -8,6 +8,8 @@ public abstract class AbstractEnemyBehavior : MonoBehaviour
     private EnemyStatus enemyStatus;
     [SerializeField]
     private EnemySensing sensing;
+    [SerializeField]
+    protected SpriteRenderer enemySprite;
 
     
     // Initializing elements on awake

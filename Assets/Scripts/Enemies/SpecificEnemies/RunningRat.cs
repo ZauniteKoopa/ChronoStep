@@ -35,9 +35,11 @@ public class RunningRat : AbstractEnemyBehavior
         // Change state based on collision
         if (goingLeft && leftBlocker.isBlocked()) {
             goingLeft = false;
+            enemySprite.flipX = true;
 
         } else if (!goingLeft && rightBlocker.isBlocked()) {
             goingLeft = true;
+            enemySprite.flipX = false;
         }
     }
 }
