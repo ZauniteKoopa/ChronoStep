@@ -49,6 +49,8 @@ public class PlatformerController2D : MonoBehaviour
     [Header("Pause Ability")]
     [SerializeField]
     private PauseZone pauseZone;
+    [SerializeField]
+    private float pauseAirJumpForce = 150f;
 
     [Header("Dash Ability")]
     [SerializeField]
@@ -411,8 +413,15 @@ public class PlatformerController2D : MonoBehaviour
         if (value.started && !pauseMenu.menuActive()) {
             if (pauseZone.canPause()) {
                 cancelDash();
-                rb.velocity = Vector2.zero;
+
+                // Pause at area 
                 pauseZone.pause();
+
+                // Disable velocity, if you're in the air, add force
+                rb.velocity = Vector2.zero;
+                if (inAir) {
+                    rb.AddForce(Vector3.up * pauseAirJumpForce);
+                }
             } else {
                 Debug.Log("Pause is on cooldown");
             }
