@@ -2891,6 +2891,9 @@ MonoBehaviour:
   wallJumpHorizontalForceTime: 0.25
   maxSlideDownSpeed: 1.5
   pauseZone: {fileID: 737467132}
+  maxDashDistance: 2.5
+  dashSpeed: 15
+  dashCooldown: 0.4
   maxHealth: 4
   invincibilityFrameDuration: 1.5
   damageKnockback: 200
@@ -2988,6 +2991,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 6271e77b-159c-46bf-8d8e-8d2d6fdf90e1
     m_ActionName: Player/PauseMenu[/Keyboard/escape]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8105501063201395202}
+        m_TargetAssemblyTypeName: PlatformerController2D, Assembly-CSharp
+        m_MethodName: onDashPress
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d018830d-fa4c-4d44-8d80-f585b3e0d5e6
+    m_ActionName: Player/Dash[/Keyboard/leftShift]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

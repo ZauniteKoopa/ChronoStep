@@ -50,6 +50,16 @@ public class PlatformerController2D : MonoBehaviour
     [SerializeField]
     private PauseZone pauseZone;
 
+    [Header("Dash Ability")]
+    [SerializeField]
+    private float maxDashDistance = 3f;
+    [SerializeField]
+    private float dashSpeed = 5f;
+    [SerializeField]
+    private float dashCooldown = 0.35f;
+    private bool canDash = true;
+    private bool dashing = false;
+
     [Header("Health Variables")]
     [SerializeField]
     private int maxHealth = 4;
@@ -110,6 +120,7 @@ public class PlatformerController2D : MonoBehaviour
             // Decrement health
             curHealth -= dmg;
             playerUI.displayHealth(curHealth);
+            cancelDash();
 
             // Apply knockback
             Vector2 playerPosition = transform.position;
@@ -179,8 +190,8 @@ public class PlatformerController2D : MonoBehaviour
 
     // Main function for handling movement: runs every frame
     private void FixedUpdate() {
-        // Only do movement if you're moving
-        if (isMoving && curHealth > 0) {
+        // Only do movement if you're moving and able to move (alive and not dashing)
+        if (isMoving && curHealth > 0 && !dashing) {
             // Modify movement vector
             Vector2 actualMove = movementVector;
             actualMove.x = (leftBlockerSensor.isBlocked() && actualMove.x < -0.1f) ? 0f : actualMove.x;
@@ -207,6 +218,7 @@ public class PlatformerController2D : MonoBehaviour
         animator.SetBool("WallSliding", wallSliding);
         animator.SetFloat("HorizontalSpeed", Mathf.Abs(movementVector.x));
         animator.SetFloat("VerticalSpeed", rb.velocity.y);
+        animator.SetBool("Dashing", dashing);
     }
 
 
@@ -234,7 +246,7 @@ public class PlatformerController2D : MonoBehaviour
         wallSliding = (leftWallSlide || rightWallSlide) && inAir && wallJumpSequence == null;
 
         // First frame of wall sliding
-        if (wallSliding && !prevWallSliding) {
+        if (wallSliding && !prevWallSliding && rb.velocity.y < 0f) {
             rb.velocity = Vector3.zero;
         }
     }
@@ -247,6 +259,7 @@ public class PlatformerController2D : MonoBehaviour
             if (!pauseMenu.menuActive()) {
                 if (jumpsLeft > 0) {
                     // Apply jump
+                    cancelDash();
                     rb.AddForce(initialJumpForce * Vector2.up);
                     jumpsLeft--;
 
@@ -288,7 +301,7 @@ public class PlatformerController2D : MonoBehaviour
     //  Pre: none
     //  Post: execute wall jump if you are moving towards a wall
     private void executeWallJump() {
-        // You can only execute wall jump if you are in the air
+        // You can only execute wall jump if you are in the air and falling down
         if (inAir) {
 
             // Check left wall
@@ -335,10 +348,69 @@ public class PlatformerController2D : MonoBehaviour
     }
 
 
+    // Main event handler for dashing
+    public void onDashPress(InputAction.CallbackContext value) {
+        if (value.started && !dashing && curHealth > 0 && canDash) {
+            StartCoroutine(dashSequence());
+        }
+    }
+
+
+    // Main dash IEnumerator
+    //  Pre: player started dash by pressing a button
+    //  Post: Player now in dashing sequence until maxDistance has passed OR dash gets canceled
+    private IEnumerator dashSequence() {
+        // Set dashing to true and timer up
+        dashing = true;
+        canDash = false;
+        float distancePassed = 0f;
+        WaitForFixedUpdate waitFrame = new WaitForFixedUpdate();
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
+
+        // Dash direction
+        Vector2 dashDir = (spriteRender.flipX) ? Vector3.left : Vector3.right;
+        IBlockerSensor checkedBlocker = (spriteRender.flipX) ? leftBlockerSensor : rightBlockerSensor;
+
+        // Main dash loop
+        while (distancePassed < maxDashDistance && dashing) {
+            yield return waitFrame;
+
+            // Get distance and translate
+            float curDist = Time.fixedDeltaTime * dashSpeed;
+            if (!checkedBlocker.isBlocked()) {
+                transform.Translate(curDist * dashDir);
+            }
+
+            // Update timer
+            distancePassed += curDist;
+        }
+
+        // Reverse dashing
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        dashing = false;
+
+        // Cooldown
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+    }
+
+
+    // Main function to cancel dash
+    //  Pre: none
+    //  Post: cancels dash if you're currently dashing
+    private void cancelDash() {
+        if (dashing) {
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            dashing = false;
+        }
+    }
+
+
     // Event handler for when using the pause ability
     public void onAbilityPress(InputAction.CallbackContext value) {
         if (value.started && !pauseMenu.menuActive()) {
             if (pauseZone.canPause()) {
+                cancelDash();
                 rb.velocity = Vector2.zero;
                 pauseZone.pause();
             } else {
