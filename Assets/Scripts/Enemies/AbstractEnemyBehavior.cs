@@ -40,6 +40,12 @@ public abstract class AbstractEnemyBehavior : MonoBehaviour
     protected abstract void behaviorUpdate();
 
 
+    // Main function to check if this unit is paused
+    protected bool isPaused() {
+        return enemyStatus.isPaused();
+    }
+
+
     // Main behavior sequence
     protected IEnumerator behaviorSequence() {
         // setup

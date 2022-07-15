@@ -25,11 +25,13 @@ public class LeapingFrog : AbstractEnemyBehavior
 
     private Rigidbody2D rb;
     private Transform target;
+    private Animator spriteAnimator;
 
 
     // On initialization, set up rigidbody
     protected override void initialize() {
         rb = GetComponent<Rigidbody2D>();
+        spriteAnimator = enemySprite.GetComponent<Animator>();
 
         if (rb == null) {
             Debug.LogError("No rigidbody found for this enemy", transform);
@@ -69,7 +71,13 @@ public class LeapingFrog : AbstractEnemyBehavior
                 intervalTimer = 0f;
                 jumping = true;
                 currentMoveDir = (target.position.x < transform.position.x) ? Vector2.left : Vector2.right;
+                enemySprite.flipX = (target.position.x >= transform.position.x);
             }
+        }
+
+        // Set animator 
+        if (!isPaused()) {
+            spriteAnimator.SetFloat("VerticalSpeed", rb.velocity.y);
         }
     }
 
