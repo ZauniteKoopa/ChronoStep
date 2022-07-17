@@ -38,8 +38,12 @@ public class PlatformerController2D : MonoBehaviour
     private int jumpsLeft;
     private bool inAir = true;
     private bool jumpPressed = false;
+    private bool enemyJumped = false;
     private Coroutine jumpCheckSequence;
     private Coroutine wallJumpSequence;
+
+    // Jump locks
+    //private readonly object enemyJumpLock = new object();
 
     [Header("Wall slide variables")]
     [SerializeField]
@@ -420,6 +424,7 @@ public class PlatformerController2D : MonoBehaviour
                 // Disable velocity, if you're in the air, add force
                 rb.velocity = Vector2.zero;
                 if (inAir) {
+                    rb.velocity = Vector3.zero;
                     rb.AddForce(Vector3.up * pauseAirJumpForce);
                 }
             }
@@ -456,7 +461,18 @@ public class PlatformerController2D : MonoBehaviour
 
     // Event handler for when player has stepped on an enemy
     public void onHitEnemy() {
-        rb.velocity = Vector3.zero;
-        rb.AddForce(enemyJumpForce * Vector3.up);
+        if (!enemyJumped) {
+            rb.velocity = Vector3.zero;
+            rb.AddForce(enemyJumpForce * Vector3.up);
+            StartCoroutine(checkEnemyJumpSequence());
+        }
+    }
+
+
+    // Main wait sequence to check for enemy jump
+    private IEnumerator checkEnemyJumpSequence() {
+        enemyJumped = true;
+        yield return new WaitForSeconds(0.1f);
+        enemyJumped = false;
     }
 }

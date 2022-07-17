@@ -15,6 +15,8 @@ public class Aspid : AbstractEnemyBehavior
     private float maxSpeed = 4f;
     [SerializeField]
     private float optimalDistance = 4.5f;
+    [SerializeField]
+    private float maxUpwardAngle = 80f;
 
     private Rigidbody2D rb;
     private Transform target = null;
@@ -37,10 +39,21 @@ public class Aspid : AbstractEnemyBehavior
 
     // Behavior that's done per frame
     protected override void behaviorUpdate() {
-        // Execute movement based on distance towards target
+        // Get appropriate direction that will avoid being on the ground (aspid always wants to be ABOVE player). Calculate force based on distance to target
         Vector2 forceDir = target.position - transform.position;
         float springForce = springMovementConstant * (forceDir.magnitude - optimalDistance);
-        rb.AddForce(springForce * forceDir);
+
+        if (Vector2.Angle(Vector2.down, forceDir) > maxUpwardAngle) {
+            float optimalAngle = (Vector2.Angle(forceDir, Vector2.left) < Vector2.Angle(forceDir, Vector2.right)) ? -1 * maxUpwardAngle : maxUpwardAngle;
+            Vector2 optimalPosition = target.position + optimalDistance * -1f * (Quaternion.AngleAxis(optimalAngle, Vector3.forward) * Vector3.down);
+            forceDir = transform.position;
+            forceDir = optimalPosition - forceDir;
+
+            springForce = Mathf.Abs(springForce);
+        }
+        
+        // Execute movement based on distance towards target
+        rb.AddForce(springForce * forceDir.normalized);
 
         // If velocity going over maxSpeed, set it to max speed
         if (rb.velocity.magnitude > maxSpeed) {

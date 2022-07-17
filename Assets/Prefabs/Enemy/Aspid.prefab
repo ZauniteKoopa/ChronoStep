@@ -430,11 +430,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sensing: {fileID: 3547679081751093904}
+  enemySprite: {fileID: 840405394740046690}
   fireInterval: 4
   turretProjectile: {fileID: 1771137578376663728, guid: d1ff8e499c1edb40b9c07f244b75b652, type: 3}
-  springMovementConstant: 0.75
+  springMovementConstant: 15
   maxSpeed: 3
   optimalDistance: 4.5
+  maxUpwardAngle: 85
 --- !u!1 &3547679081751093905
 GameObject:
   m_ObjectHideFlags: 0

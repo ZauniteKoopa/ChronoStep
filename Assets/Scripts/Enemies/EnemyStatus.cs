@@ -5,6 +5,7 @@ using UnityEngine.Events;
 
 public class EnemyStatus : MonoBehaviour
 {
+    // Health
     [SerializeField]
     private int health = 3;
     [SerializeField]
@@ -13,6 +14,12 @@ public class EnemyStatus : MonoBehaviour
     public UnityEvent deathEvent;
     private Color originalColor;
 
+    // Health locks
+    private readonly object healthLock = new object();
+    private bool invulnerable = false;
+    private float invulnerableDuration = 0.2f;
+
+    // Pause management
     private bool paused = false;
     private bool pauseInvulnerable = false;
     private float pauseInvulnerabilityDuration = 5f;
@@ -20,6 +27,10 @@ public class EnemyStatus : MonoBehaviour
     private Color pauseColor;
     [SerializeField]
     private EnemyUI enemyUI;
+
+    // Damage display
+    private float damageDisplayTime = 0.2f;
+
 
     // Collection of body hitboxes that trigger unpause event
     [SerializeField]
@@ -56,18 +67,40 @@ public class EnemyStatus : MonoBehaviour
     // Main function to handle damage
     public void damage(int dmg) {
         // Do damage
-        health -= dmg;
+        lock (healthLock) {
+            if (!invulnerable) {
+                health -= dmg;
         
-        // Unpause if you are paused
-        if (paused) {
-            paused = false;
-        }
+                // Unpause if you are paused
+                if (paused) {
+                    paused = false;
+                }
 
-        // check for death condition
-        if (health <= 0) {
-            deathEvent.Invoke();
-            gameObject.SetActive(false);
+                // check for death condition
+                if (health <= 0) {
+                    deathEvent.Invoke();
+                    gameObject.SetActive(false);
+                } else {
+                    StartCoroutine(displayDamage());
+                }
+            }
         }
+    }
+
+    
+    // Main function to show that unit got damaged
+    private IEnumerator displayDamage() {
+        sprite.color = Color.red;
+        yield return new WaitForSeconds(damageDisplayTime);
+        sprite.color = (paused) ? Color.blue : originalColor;
+    }
+
+
+    // Main invulnerability sequence
+    private IEnumerator invulnerabilitySequence() {
+        invulnerable = true;
+        yield return new WaitForSeconds(invulnerableDuration);
+        invulnerable = false;
     }
 
 
