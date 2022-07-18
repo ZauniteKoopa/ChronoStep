@@ -118,6 +118,14 @@ public class PlatformerController2D : MonoBehaviour
     }
 
 
+    // Main function to heal unit
+    //  Pre: dmgHealed > 0
+    public void heal(int dmgHealed) {
+        curHealth = Mathf.Min(maxHealth, curHealth + dmgHealed);
+        playerUI.displayHealth(curHealth);
+    }
+
+
     // Main function for doing damage to player
     //  Pre: dmg >= 0f
     //  player is inflicted by this amount of damage, returns if successful
