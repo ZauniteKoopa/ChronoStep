@@ -8,6 +8,8 @@ public class Aspid : AbstractEnemyBehavior
     [SerializeField]
     private float fireInterval = 2.5f;
     [SerializeField]
+    private float shotAnticipation = 0.5f;
+    [SerializeField]
     protected StraightLineProjectile turretProjectile;
     [SerializeField]
     private float springMovementConstant = 250f;
@@ -21,9 +23,13 @@ public class Aspid : AbstractEnemyBehavior
     private Rigidbody2D rb;
     private Transform target = null;
     private float fireTimer = 0f;
+    private float anticipationTimer = 0f;
+    private Animator spriteAnimator;
+
 
     protected override void initialize() {
         rb = GetComponent<Rigidbody2D>();
+        spriteAnimator = enemySprite.GetComponent<Animator>();
 
         if (rb == null) {
             Debug.LogError("No rigidbody found");
@@ -65,9 +71,18 @@ public class Aspid : AbstractEnemyBehavior
 
         // If timer went past interval, fire projectile and reset timer
         if (fireTimer >= fireInterval) {
-            fireProjectile(target);
-            fireTimer = 0f;
+            anticipationTimer += Time.fixedDeltaTime;
+
+            if (anticipationTimer >= shotAnticipation) {
+                fireProjectile(target);
+                fireTimer = 0f;
+                anticipationTimer = 0f;
+            }
         }
+
+        // Set animation attributes
+        spriteAnimator.SetFloat("AnticipationTime", anticipationTimer);
+        enemySprite.flipX = (target.position.x > transform.position.x);
     }
 
 

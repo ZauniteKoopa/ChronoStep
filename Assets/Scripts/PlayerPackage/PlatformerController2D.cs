@@ -253,10 +253,19 @@ public class PlatformerController2D : MonoBehaviour
     public void checkWallSlide(float movementDir) {
          // Check if wall slide conditions
         bool prevWallSliding = wallSliding;
-        bool leftWallSlide = movementDir < -0.0001 && leftBlockerSensor.isBlocked();
-        bool rightWallSlide = movementDir > 0.0001 && rightBlockerSensor.isBlocked();
+        bool leftWallSlide;
+        bool rightWallSlide;
 
-        // Wall sliding occurs when you're leaning to a wall, you're in the air, and you're not in a wall jump sequence
+        // If first time wall sliding, must move towards wall. If you previously wall slide, you must move the opposite direction
+        if (prevWallSliding) {
+            leftWallSlide = movementDir <= 0.0f && leftBlockerSensor.isBlocked();
+            rightWallSlide = movementDir >= 0.0f && rightBlockerSensor.isBlocked();
+        } else {
+            leftWallSlide = movementDir < -0.0001 && leftBlockerSensor.isBlocked();
+            rightWallSlide = movementDir > 0.0001 && rightBlockerSensor.isBlocked();
+
+        }
+
         wallSliding = (leftWallSlide || rightWallSlide) && inAir && wallJumpSequence == null;
 
         // First frame of wall sliding
@@ -319,8 +328,8 @@ public class PlatformerController2D : MonoBehaviour
         if (inAir) {
 
             // Check left wall
-            if (leftBlockerSensor.isBlocked() && movementVector.x < -0.1f) {
-                Vector2 wallJumpVector = new Vector2(1f, 1f);
+            if (leftBlockerSensor.isBlocked() && wallSliding) {
+                Vector2 wallJumpVector = new Vector2(0.5f, 1f);
 
                 if (wallJumpSequence != null) {
                     StopCoroutine(wallJumpSequence);
@@ -329,8 +338,8 @@ public class PlatformerController2D : MonoBehaviour
             }
 
             // Check right wall
-            else if (rightBlockerSensor.isBlocked() && movementVector.x > 0.1f) {
-                Vector2 wallJumpVector = new Vector2(-1f, 1f);
+            else if (rightBlockerSensor.isBlocked() && wallSliding) {
+                Vector2 wallJumpVector = new Vector2(-0.5f, 1f);
 
                 if (wallJumpSequence != null) {
                     StopCoroutine(wallJumpSequence);
