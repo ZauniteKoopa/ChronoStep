@@ -91,6 +91,9 @@ public class PlatformerController2D : MonoBehaviour
     [SerializeField]
     private PauseMenu pauseMenu;
 
+    // Audio
+    private PlayerAudio playerAudio;
+
 
     // On awake get rigidbody
     private void Awake() {
@@ -101,12 +104,17 @@ public class PlatformerController2D : MonoBehaviour
 
         // Initialize rigidbody
         rb = GetComponent<Rigidbody2D>();
+        playerAudio = GetComponent<PlayerAudio>();
         if (rb == null) {
             Debug.LogError("No rigidbody found on this player, how do I jump?");
         }
 
         if (pauseMenu == null) {
             Debug.LogError("No pause menu connected to this player");
+        }
+
+        if (playerAudio == null) {
+            Debug.LogError("No player audio connected to this player");
         }
 
         rb.gravityScale = gravityScale;
@@ -121,6 +129,7 @@ public class PlatformerController2D : MonoBehaviour
     // Main function to heal unit
     //  Pre: dmgHealed > 0
     public void heal(int dmgHealed) {
+        playerAudio.playHealSound();
         curHealth = Mathf.Min(maxHealth, curHealth + dmgHealed);
         playerUI.displayHealth(curHealth);
     }
@@ -134,6 +143,7 @@ public class PlatformerController2D : MonoBehaviour
             // Decrement health
             curHealth -= dmg;
             playerUI.displayHealth(curHealth);
+            playerAudio.playDamageSound();
             cancelDash();
 
             // Apply knockback
@@ -283,6 +293,7 @@ public class PlatformerController2D : MonoBehaviour
                 if (jumpsLeft > 0) {
                     // Apply jump
                     cancelDash();
+                    playerAudio.playJumpSound();
                     rb.AddForce(initialJumpForce * Vector2.up);
                     jumpsLeft--;
 
@@ -330,6 +341,7 @@ public class PlatformerController2D : MonoBehaviour
             // Check left wall
             if (leftBlockerSensor.isBlocked() && wallSliding) {
                 Vector2 wallJumpVector = new Vector2(0.5f, 1f);
+                playerAudio.playJumpSound();
 
                 if (wallJumpSequence != null) {
                     StopCoroutine(wallJumpSequence);
@@ -340,6 +352,7 @@ public class PlatformerController2D : MonoBehaviour
             // Check right wall
             else if (rightBlockerSensor.isBlocked() && wallSliding) {
                 Vector2 wallJumpVector = new Vector2(-0.5f, 1f);
+                playerAudio.playJumpSound();
 
                 if (wallJumpSequence != null) {
                     StopCoroutine(wallJumpSequence);
@@ -374,6 +387,7 @@ public class PlatformerController2D : MonoBehaviour
     // Main event handler for dashing
     public void onDashPress(InputAction.CallbackContext value) {
         if (value.started && !dashing && curHealth > 0 && canDash) {
+            playerAudio.playDashSound();
             StartCoroutine(dashSequence());
         }
     }
@@ -437,6 +451,7 @@ public class PlatformerController2D : MonoBehaviour
 
                 // Pause at area 
                 pauseZone.pause();
+                playerAudio.playPauseSound();
 
                 // Disable velocity, if you're in the air, add force
                 rb.velocity = Vector2.zero;
@@ -482,6 +497,7 @@ public class PlatformerController2D : MonoBehaviour
             rb.velocity = Vector3.zero;
             rb.AddForce(enemyJumpForce * Vector3.up);
             StartCoroutine(checkEnemyJumpSequence());
+            playerAudio.playEnemyJumpSound();
         }
     }
 

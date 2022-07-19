@@ -25,10 +25,13 @@ public class Aspid : AbstractEnemyBehavior
     private float fireTimer = 0f;
     private float anticipationTimer = 0f;
     private Animator spriteAnimator;
+    private EnemyAudio enemyAudio;
 
 
     protected override void initialize() {
         rb = GetComponent<Rigidbody2D>();
+        enemyAudio = GetComponent<EnemyAudio>();
+
         spriteAnimator = enemySprite.GetComponent<Animator>();
 
         if (rb == null) {
@@ -75,6 +78,7 @@ public class Aspid : AbstractEnemyBehavior
 
             if (anticipationTimer >= shotAnticipation) {
                 fireProjectile(target);
+                enemyAudio.playAttackSound();
                 fireTimer = 0f;
                 anticipationTimer = 0f;
             }

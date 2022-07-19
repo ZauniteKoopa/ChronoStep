@@ -19,6 +19,8 @@ public abstract class AbstractEnemyBehavior : MonoBehaviour
             Debug.LogError("No enemy status found for this enemy behavior", transform);
         }
 
+        enemyStatus.deathEvent.AddListener(onDeath);
+
         // Connect to sensing
         if (sensing != null) {
             sensing.sensedPlayerEvent.AddListener(onPlayerSensed);
@@ -43,6 +45,12 @@ public abstract class AbstractEnemyBehavior : MonoBehaviour
     // Main function to check if this unit is paused
     protected bool isPaused() {
         return enemyStatus.isPaused();
+    }
+
+
+    // Main event handler function when enemy dies
+    private void onDeath() {
+        StopAllCoroutines();
     }
 
 

@@ -38,5 +38,7 @@ public class HomingTurret : AbstractEnemyBehavior
         StraightLineProjectile currentProj = Object.Instantiate(turretProjectile, transform.position, Quaternion.identity);
         currentProj.changeDirection((tgt.position - transform.position).normalized);
         currentProj.startMovement(transform);
+
+        GetComponent<EnemyAudio>().playAttackSound();
     }
 }

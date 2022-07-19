@@ -1,0 +1,23 @@
+Resources:
+
+- SunnyLand 2D Unity Asset Pack
+
+- Brackeys Mega 2D Pack
+
+- Player Jump Sound: https://freesound.org/people/kwahmah_02/sounds/262893/
+
+- Player Damaged Sound: https://freesound.org/people/marionagm90/sounds/220662/
+
+- Eagle Squawk: https://freesound.org/people/JackWilDesign/sounds/607902/
+
+- Eagle Flap: https://freesound.org/people/_stubb/sounds/389634/
+
+- Rat Death: https://freesound.org/people/egomassive/sounds/536753/
+
+- Frog Death: https://freesound.org/people/Breviceps/sounds/447917/
+
+
+
+
+
+

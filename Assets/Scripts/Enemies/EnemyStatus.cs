@@ -31,12 +31,14 @@ public class EnemyStatus : MonoBehaviour
     // Damage display
     private float damageDisplayTime = 0.2f;
 
-
     // Collection of body hitboxes that trigger unpause event
     [SerializeField]
     private EnemyBodyHitbox[] enemyBodyHitboxes;
     private Rigidbody2D rb;
     private RigidbodyConstraints2D originalPhysicsConstraints;
+
+    // Audio
+    private EnemyAudio enemyAudio;
 
 
     // On awake set everything up
@@ -59,6 +61,8 @@ public class EnemyStatus : MonoBehaviour
         }
         originalPhysicsConstraints = rb.constraints;
 
+        enemyAudio = GetComponent<EnemyAudio>();
+
         // Get color
         originalColor = sprite.color;
     }
@@ -78,8 +82,17 @@ public class EnemyStatus : MonoBehaviour
 
                 // check for death condition
                 if (health <= 0) {
+                    // Play death sound
                     deathEvent.Invoke();
-                    gameObject.SetActive(false);
+                    if (enemyAudio != null) {
+                        enemyAudio.playDeathSound();
+                    }
+                    
+                    // Disable everything
+                    for (int i = 0; i < transform.childCount; i++){
+                        transform.GetChild(i).gameObject.SetActive(false);
+                    }
+
                 } else {
                     StartCoroutine(displayDamage());
                 }
