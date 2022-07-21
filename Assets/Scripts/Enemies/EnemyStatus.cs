@@ -95,6 +95,7 @@ public class EnemyStatus : MonoBehaviour
 
                 } else {
                     StartCoroutine(displayDamage());
+                    StartCoroutine(invulnerabilitySequence());
                 }
             }
         }

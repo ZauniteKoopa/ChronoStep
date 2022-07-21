@@ -36,6 +36,8 @@ public class LeapingFrog : AbstractEnemyBehavior
         if (rb == null) {
             Debug.LogError("No rigidbody found for this enemy", transform);
         }
+
+        footSensor.blockedStartEvent.AddListener(onLanded);
     }
 
 
@@ -56,11 +58,6 @@ public class LeapingFrog : AbstractEnemyBehavior
                 transform.Translate(currentMoveDir * jumpMoveSpeed * Time.fixedDeltaTime);
             }
 
-            // Check if you've landed
-            if (rb.velocity.y <= -0.5f && footSensor.isBlocked()) {
-                jumping = false;
-            }
-
         // In the case where you're not jumping, just wait until it's time to jump again
         } else {
             intervalTimer += Time.fixedDeltaTime;
@@ -79,6 +76,16 @@ public class LeapingFrog : AbstractEnemyBehavior
         if (!isPaused()) {
             spriteAnimator.SetFloat("VerticalSpeed", rb.velocity.y);
             spriteAnimator.SetBool("Jumping", jumping);
+        }
+    }
+
+
+    // Main event handler for when the frog landed on the ground
+    //  Pre: frog landed on the ground after jumping
+    //  Post: set jumping flag to false
+    private void onLanded() {
+        if (jumping) {
+            jumping = false;
         }
     }
 

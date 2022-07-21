@@ -513,7 +513,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 384100d8703a5cdd799f5df0ec44b077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 3
+  health: 4
   sprite: {fileID: 431527546}
   deathEvent:
     m_PersistentCalls:

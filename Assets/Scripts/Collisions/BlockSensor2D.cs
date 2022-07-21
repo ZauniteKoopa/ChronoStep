@@ -37,6 +37,10 @@ public class BlockSensor2D : IBlockerSensor
         // Case if you hit the enviornment
         if (colliderLayer == LayerMask.NameToLayer("SolidEnviornment")){
             lock(numWallsLock) {
+                if (numWallsTouched == 0) {
+                    blockedStartEvent.Invoke();
+                }
+                
                 numWallsTouched++;
             }
         }
