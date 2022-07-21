@@ -244,7 +244,7 @@ Transform:
   m_GameObject: {fileID: 997761581098994843}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0.56, z: 0}
-  m_LocalScale: {x: 0.9, y: 0.15, z: 1}
+  m_LocalScale: {x: 1.2, y: 0.15, z: 1}
   m_Children: []
   m_Father: {fileID: 997761581329533587}
   m_RootOrder: 1
@@ -751,6 +751,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bf046a68d8bf92da8eb96e04adb4c97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  blockedStartEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!61 &2859110402208631232
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -988,6 +991,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bf046a68d8bf92da8eb96e04adb4c97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  blockedStartEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!61 &2859110403056482141
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1110,6 +1116,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bf046a68d8bf92da8eb96e04adb4c97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  blockedStartEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!61 &2859110403105598840
 BoxCollider2D:
   m_ObjectHideFlags: 0
