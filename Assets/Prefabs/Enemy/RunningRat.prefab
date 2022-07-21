@@ -689,7 +689,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sensing: {fileID: 0}
   enemySprite: {fileID: 1398474759}
-  runSpeed: 3.5
+  runSpeed: 4
   leftBlocker: {fileID: 8380660286824309510}
   rightBlocker: {fileID: 8380660286459246619}
 --- !u!114 &7648011546729771118

@@ -67,7 +67,6 @@ public abstract class AbstractEnemyBehavior : MonoBehaviour
 
             // Wait for pausing
             yield return new WaitUntil(() => !enemyStatus.isPaused());
-            behaviorUpdate();
         }
     }
 

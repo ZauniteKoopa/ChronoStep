@@ -103,7 +103,7 @@ MonoBehaviour:
   unpausedEvent:
     m_PersistentCalls:
       m_Calls: []
-  bulletSpeed: 3.5
+  bulletSpeed: 2
 --- !u!61 &8147372478437455593
 BoxCollider2D:
   m_ObjectHideFlags: 0
