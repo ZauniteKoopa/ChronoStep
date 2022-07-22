@@ -45,6 +45,7 @@ public class PauseMenu : MonoBehaviour
 
     // Main event handler function: on go to main menu
     public void goToMainMenu() {
+        Time.timeScale = 1.0f;
         SceneManager.LoadScene("MainMenu");
     }
 

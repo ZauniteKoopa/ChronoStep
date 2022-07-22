@@ -15772,34 +15772,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 33361617, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
-      propertyPath: m_text
-      value: 'A/D:  Movement
-
-        Space: Jump
-
-        U: Pause'
-      objectReference: {fileID: 0}
-    - target: {fileID: 519420031, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
-      propertyPath: m_ClearFlags
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 519420031, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
-      propertyPath: m_BackGroundColor.a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 519420031, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
-      propertyPath: m_BackGroundColor.b
-      value: 0.5188679
-      objectReference: {fileID: 0}
-    - target: {fileID: 519420031, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
-      propertyPath: m_BackGroundColor.g
-      value: 0.35284647
-      objectReference: {fileID: 0}
-    - target: {fileID: 519420031, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
-      propertyPath: m_BackGroundColor.r
-      value: 0.24719651
-      objectReference: {fileID: 0}
     - target: {fileID: 8105501063201395260, guid: 6e740363b6db997cfa1cc01cb7587d96, type: 3}
       propertyPath: m_RootOrder
       value: 0
