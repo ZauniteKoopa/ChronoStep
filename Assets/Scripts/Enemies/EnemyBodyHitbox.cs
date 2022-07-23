@@ -10,6 +10,7 @@ public class EnemyBodyHitbox : MonoBehaviour
     // Only attack player if on trigger stay indicated
     private void OnTriggerStay2D(Collider2D collider) {
         PlatformerController2D playerStatus = collider.GetComponent<PlatformerController2D>();
+        //Vector3 collisionVector = (collider.transform.position - transform.position).normalized;
 
         if (playerStatus != null) {
             bool inflictedDmg = playerStatus.damage(1, transform.position);

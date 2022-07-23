@@ -35,6 +35,8 @@ public class PlatformerController2D : MonoBehaviour
     private int tapJumpFrameCheck = 12;
     [SerializeField]
     private float wallJumpHorizontalForceTime = 0.25f;
+    [SerializeField]
+    private float fallingSpeedCap = 9f;
     private int jumpsLeft;
     private bool inAir = true;
     private bool jumpPressed = false;
@@ -227,10 +229,9 @@ public class PlatformerController2D : MonoBehaviour
 
         // If you're wall sliding, restrict vertical velocity
         checkWallSlide(movementVector.x);
-        if (wallSliding) {
-            float yVelocity = Mathf.Max(-1 * maxSlideDownSpeed, rb.velocity.y);
-            rb.velocity = Vector3.up * yVelocity;
-        }
+        float fallCap = (wallSliding) ? maxSlideDownSpeed : fallingSpeedCap;
+        float yVelocity = Mathf.Max(-1 * fallCap, rb.velocity.y);
+        rb.velocity = new Vector3(rb.velocity.x, yVelocity, 0f);
 
         // Constantly check flip x
         if (isMoving || wallJumpSequence != null) {
